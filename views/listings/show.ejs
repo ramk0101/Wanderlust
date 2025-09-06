@@ -1,0 +1,117 @@
+<% layout("/layouts/boilerplate") %>
+<script>
+   const mapToken = "<%= process.env.MAPS_API_KEY %>";
+   const coordinates = <%- JSON.stringify(listing.geometry.coordinates) %>;
+</script>
+
+
+  <div class="row">
+    <div class="col-8 offset-2 mt-3">
+      <h3>
+        <%= listing.title %>
+      </h3>
+    </div>
+
+    <div class="card col-6 offset-2 listing-card mb-4">
+      <!-- Listing Image -->
+      <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="listing-image" />
+
+      <div class="card-body">
+        <p class="card-text">
+          <i>Owned by: <%= listing.owner.username %></i>
+        </p>
+        <br>
+
+        <p class="card-text">
+          <%= listing.description %>
+        </p>
+
+        <p class="card-text">
+          <strong>Price:</strong> &#8377; <%= listing.price.toLocaleString('en-IN') %> per night
+        </p>
+
+        <p class="card-text">
+          <strong>Location:</strong>
+          <%= listing.location %>
+        </p>
+
+        <p class="card-text">
+          <strong>Country:</strong>
+          <%= listing.country %>
+        </p>
+
+        <% if (currUser && currUser._id.equals(listing.owner._id)) { %>
+          <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark me-2 mb-2 mb-md-0">
+            Edit this listing
+          </a>
+
+          <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST" style="display: inline">
+            <button type="submit" class="btn btn-danger mt-2 mt-md-0">
+              Delete this listing
+            </button>
+          </form>
+          <% } %>
+      </div>
+
+      <% if (currUser) { %>
+        <div class="col-8">
+          <hr />
+          <%- include('../reviews/review.ejs') %>
+        </div>
+        <% } %>
+
+          <!-- ====== Show Reviews ===== -->
+          <% if (listing.reviews.length> 0) { %>
+            <div class="col-12 mt-4">
+              <hr />
+              <p><b>All Reviews</b></p>
+
+              <div class="row g-3">
+                <% for (review of listing.reviews) { %>
+                  <div class="col-12 col-md-6">
+                    <div class="card shadow-sm h-100 border border-dark rounded-3">
+                      <div class="card-body">
+                        <h5 class="card-title">
+                          Reviewed by: <i>
+                            <%= review.author.username %>
+                          </i>
+                        </h5>
+
+                        <!-- Rating -->
+                        <p class="starability-result card-text mb-2" data-rating="<%= review.rating %>"></p>
+
+                        <!-- Comment -->
+                        <p class="card-text">
+                          <%= review.comment %>
+                        </p>
+                      </div>
+
+                      <div class="card-footer bg-transparent border-0 text-end">
+                        <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE"
+                          method="POST" style="display: inline">
+                          <button type="submit" class="btn btn-danger btn-sm">Delete this review</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <% } %>
+              </div>
+            </div>
+            <% } %>
+             
+
+
+    </div>
+    <hr>
+     <!-- Map Section -->
+              <div class="col-6 offset-2 mb-3">
+                <h3>Where you will be</h3>
+                <div id="map"></div>
+
+              </div>
+
+              
+  </div>
+
+
+<script src="/js/map.js"></script>
